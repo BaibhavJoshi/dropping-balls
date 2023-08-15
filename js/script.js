@@ -1,6 +1,6 @@
 // Imports
 
-import {getRandomInt, getRandomColor} from "./utility.js"
+import {getRandomInt, getRandomColor, getDistance} from "./utility.js"
 import Ball from "./ball.js";
 
 // Setup
@@ -10,8 +10,6 @@ let ctx = canvas.getContext("2d");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-
-let numBalls = 99;
 
 // Objects
 
@@ -66,15 +64,32 @@ document.getElementById("resetButton").addEventListener("click", function(event)
 
 // Initialization
 
+let numBalls = 10;
 
 let balls = [];
 
 for(let i = 0; i <= numBalls; i++){
+
     let x = getRandomInt(100, canvas.width - 100);
     let y = getRandomInt(200, canvas.height/2);
-    let dx = getRandomInt(-5, 5);
-    let dy = getRandomInt(-5, 5);
-    balls.push(new Ball(x, y, dx, dy, 40, getRandomColor(colors), ctx));
+    let radius = 40;
+
+    // Making sure they don't spawn at the same place
+
+    for(let j = 0; j < balls.length; j++){
+        if(i === 0){
+            continue;
+        } else {
+            if(getDistance(x, y, balls[j].x, balls[j].y) <= 2*radius){
+                x = getRandomInt(100, canvas.width - 100);
+                y = getRandomInt(200, canvas.height/2);
+                j = -1;
+            }
+        }
+    }
+
+
+    balls.push(new Ball(x, y, radius, getRandomColor(colors), ctx));
 }
 
 
@@ -86,7 +101,7 @@ function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     for(let i = 0; i <= numBalls; i++){
-        balls[i].update();
+        balls[i].update(balls);
     }
 
 }
